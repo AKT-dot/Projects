@@ -1,8 +1,10 @@
-Mobile sale data Analysis:
+Zomato sales data Analysis:
 
 
-1.Univariate analysis of all the 10 columns
+1.Differnet type of Restraunt listed on Zomato
 
-2.Bivariate analysis - most important parameters that impact the price and ratings
+2.People preference for Dine in v/s delivery
 
-3.Any other insights that can be drawn
+3.Distribution of Votes to different restraunt type
+
+4.Distribution of average cost for two person
