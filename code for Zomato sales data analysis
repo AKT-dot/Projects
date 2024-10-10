@@ -1,0 +1,105 @@
+# code for Zomato sales data analysis
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import matplotlib.colors as mcolors
+
+df = pd.read_csv(r'C:\Users\Ankit Sharma\OneDrive\Desktop\Data Analysis_Projects\Zomato\Zomato data .csv')
+pd.set_option('display.max_rows',None)
+pd.set_option('display.max_columns',None)
+df.head()
+
+df.isnull().sum() # this shows there is no null value hence the data is clean.
+
+#converting rate into integer
+df['rate1'] = (df['rate']).str.split('/').str[0]
+df['rate1']
+
+df.head()
+
+df.info() #there are total 148 entries in each column
+
+plt.figure(figsize=(6, 6))
+types_counts = df['listed_in(type)'].value_counts()
+bars = plt.bar(types_counts.index, types_counts, color=['red', 'blue', 'green', 'yellow'])
+
+# To count the total number of entries, to calculate the percentage
+count = types_counts.sum()
+print(count)
+
+for bar in bars:
+    yval = bar.get_height()
+    percentage = (yval / count) * 100
+    plt.text(bar.get_x() + bar.get_width() / 2, yval, f'{int(yval)}\n{percentage:.2f}%', ha='center', va='bottom', fontsize=10)
+
+plt.xlabel('Restaurant types listed on Zomato')
+plt.ylabel('No. of restaurants')
+plt.tight_layout()
+plt.ylim(0, 150)
+plt.show()
+
+# Do a greater number of restaurants provide online delivery?
+df['online_order'] = df['online_order'].str.capitalize()
+plt.figure(figsize=(10, 6))
+Yes = df['online_order'].value_counts().get('Yes')
+No = df['online_order'].value_counts().get('No')
+print(f"Yes: {Yes}, No: {No}")
+sizes = [Yes, No]
+Labels = ['Yes', 'No']
+plt.pie(sizes, labels=Labels, autopct=lambda pct: f'{pct:.1f}% \n ({int(pct * sum(sizes) / 100)})',
+        shadow=True, wedgeprops={'edgecolor': 'black'})
+plt.show()
+
+# Which types of restaurants are most favored by the public (based on votes)?
+group = df.groupby(by='listed_in(type)')['votes'].sum()
+print(group)
+plt.figure(figsize=(10, 6))
+plt.plot(group, marker='s', label='Votes by type')
+plt.scatter(group.index, group)
+plt.xticks(rotation=45, ha='right')
+plt.xlabel('Restaurant Type')
+plt.ylabel('Total Votes')
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Restaurant with max votes
+maximum_votes = max(df['votes'])
+restaurant_with_max_votes = df.loc[df['votes'] == maximum_votes, 'name']
+print("Restaurant with the highest votes:", restaurant_with_max_votes.values[0])
+
+# What price range is preferred for dinner (approx cost for two people)?
+plt.figure(figsize=(10, 6))
+plt.xticks(np.arange(0, 1000, 50))
+n = len(df['approx_cost(for two people)'].value_counts())
+colors = list(mcolors.TABLEAU_COLORS.values())[:n]
+
+bars = plt.bar(df['approx_cost(for two people)'].value_counts().index,
+               df['approx_cost(for two people)'].value_counts(), 
+               width=10, edgecolor='black', color=colors)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom')
+
+plt.show()
+
+# Alternative plot for price distribution
+plt.figure(figsize=(10, 6))
+plt.xticks(np.arange(0, 1000, 50))
+bars = sns.countplot(x=df['approx_cost(for two people)'], edgecolor='black')
+for bar in bars.patches:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval, f'{int(yval)}', ha='center', va='bottom')
+
+plt.show()
+
+# Distribution based on ratings
+plt.figure(figsize=(8, 6))
+plt.hist(df['rate1'], bins=5, edgecolor='black')
+plt.xlabel('Rating')
+plt.ylabel('Frequency')
+plt.title('Distribution of Ratings')
+plt.show()
